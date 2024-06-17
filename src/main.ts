@@ -13,10 +13,10 @@ async function bootstrap() {
   const config = app.get(ConfigService<IEnv>)
 
   //add firebase
-  const serviceAccount = require('../notification-bd259-firebase-adminsdk-tgmvs-46ebbec261.json');
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
+  // const serviceAccount = require('../notification-bd259-firebase-adminsdk-tgmvs-46ebbec261.json');
+  // admin.initializeApp({
+  //   credential: admin.credential.cert(serviceAccount)
+  // });
 
   await app.listen(config.get('SERVER_PORT'));
 
