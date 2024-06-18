@@ -54,7 +54,7 @@ EXCEL_MIME_TYPE='application/vnd.openxmlformats-officedocument.spreadsheetml.she
   ): Promise<void> {
     try {
       const { tempFilePath, excelName } = await this.appService.getHello(input);
-      console.log(tempFilePath);
+      console.log(tempFilePath); 
       
       const readStream = createReadStream(tempFilePath);
       res.setHeader('Content-Type', this.EXCEL_MIME_TYPE);

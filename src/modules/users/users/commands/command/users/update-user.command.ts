@@ -1,6 +1,8 @@
-export class UpdteUserCommand {
+import { UpdateUserDto } from "../../../dtos/users/update-user.dto";
+
+export class UpdateUserCommand {
     constructor(
         public readonly id: number,
-        public readonly input: any,
+        public readonly input: UpdateUserDto,
     ){}
 }

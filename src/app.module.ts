@@ -12,6 +12,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { PermissionGuard } from './common/guards/permission.guard';
 import { ExcelExportService } from './common/utils/excel-export/export.service';
 import { UserService } from './modules/users/users/user.service';
+import { userModules } from './modules/users';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { UserService } from './modules/users/users/user.service';
       useFactory: jwtConfig,
       inject: [ConfigService],
     }),
-    UserModule
+    // UserModule
+    ...userModules
   ], 
   controllers: [AppController],
   providers: [

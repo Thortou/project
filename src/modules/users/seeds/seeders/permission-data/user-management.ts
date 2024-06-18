@@ -28,5 +28,40 @@ export const userManagemenGroups = [
     description: 'delete user data',
     type: PermissionType.UserManagement,
     display_name: PermissionDisplayName.UserDelete,
-  }
+  },
+  {
+    id: 5,
+    name: PermissionName.READ_ROLE,
+    description: 'read role data',
+    type: PermissionType.RoleManagement,
+    display_name: PermissionDisplayName.RoleRead,
+  },
+  {
+    id: 6,
+    name: PermissionName.WRITE_ROLE,
+    description: 'write role data',
+    type: PermissionType.RoleManagement,
+    display_name: PermissionDisplayName.RoleWrite,
+  },
+  {
+    id: 7,
+    name: PermissionName.UPDATE_ROLE,
+    description: 'update role data',
+    type: PermissionType.RoleManagement,
+    display_name: PermissionDisplayName.RoleUpdate,
+  },
+  {
+    id: 8,
+    name: PermissionName.DELETE_ROLE,
+    description: 'delete role data',
+    type: PermissionType.RoleManagement,
+    display_name: PermissionDisplayName.RoleDelete,
+  },
+  {
+    id: 9,
+    name: PermissionName.READ_PERMISSION,
+    description: 'read permission data',
+    type: PermissionType.PermissionManagement,
+    display_name: PermissionDisplayName.PermissionRead,
+  },
 ];
