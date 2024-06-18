@@ -23,32 +23,27 @@ export class RoleController {
     ) { }
 
     @Permissions(PermissionName.WRITE_ROLE)
-    @Public()
     @Post()
     async create(@Body() input: CreateRoleDto): Promise<any> {
         return await this._commandBus.execute<CreateRoleCommand, RoleEntity>(new CreateRoleCommand(input))
     }
 
     @Permissions(PermissionName.UPDATE_ROLE)
-    @Public()
     @Put(':id')
     async update(@Param('id') id: number, @Body() input: UpdateRoleDto): Promise<any> {
         return await this._commandBus.execute<UpdateRoleCommand, RoleEntity>(new UpdateRoleCommand(id, input))
     }
     @Permissions(PermissionName.DELETE_ROLE)
-    @Public()
     @Delete(':id')
     async delete(@Param('id') id: number): Promise<any> {
         return await this._commandBus.execute<DeleteRoleCommand, RoleEntity>(new DeleteRoleCommand(id))
     }
     @Permissions(PermissionName.READ_ROLE)
-    @Public()
     @Get(':id')
     async getDetail(@Param('id') id: number): Promise<any> {
         return await this._queryBus.execute<GetDetailRoleQuery, RoleEntity>(new GetDetailRoleQuery(id))
     }
     @Permissions(PermissionName.READ_ROLE)
-    @Public()
     @Get()
     async getPaginated(@Query() query: QueryRoleDto): Promise<any> {
         return await this._queryBus.execute<GetPaginateRoleQuery, RoleEntity>(new GetPaginateRoleQuery(query))
