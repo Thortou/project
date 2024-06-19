@@ -13,8 +13,13 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
         private readonly _uniqueIdService: UniqueIDService
     ) { }
     async execute({ id, input }: UpdateUserCommand): Promise<any> {
+        const roleids = input.role_ids.replace(/^\[|\]$/g, '').split(',').map(val => parseInt(val.trim(), 10))
         const user = await this._userService.getOne(id, 'id')
+        const exitsUsername = await this._userService.getOne(input.username, 'username');
         if (!user) throw new NotFoundException({ message: 'ຜູ້ໃຊ້ນີ້ ບໍ່ມີ' })
+        if (exitsUsername) {
+            return { status: 500, message: 'ຜູ້ໃຊ້ນີ້ມີໃນລະບົບແລ້ວ' }
+        }
         const entity = new UserEntity()
         entity.notification_topic = await this._uniqueIdService.generateUniqueID(
             10,
@@ -24,7 +29,7 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
             'notification_topic',
         );
         entity.username = input.username;
-        entity.roles = await this._userService.getRoles(input.role_ids);
+        entity.roles = await this._userService.getRoles(roleids);
         //profile
         entity.profile.first_name = input.first_name;
         entity.profile.last_name = input.last_name;

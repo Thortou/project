@@ -2,6 +2,7 @@ import { CreateUserDto } from "../../../dtos/users/create-user.dto";
 
 export class CreateUserCommand {
     constructor(
-        public readonly input: CreateUserDto
+        public readonly input: CreateUserDto,
+        public readonly file: any,
     ){}
 }

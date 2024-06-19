@@ -1,10 +1,11 @@
-import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ExcelExportService } from './common/utils/excel-export/export.service';
 import { table } from './modules/excel/repository';
 import { Public } from './common/decorators/public.decorator';
 import { createReadStream } from 'fs';
 import { Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 export class queryDto {
   search: string;
@@ -16,8 +17,8 @@ export class AppController {
     private readonly appService: AppService,
     private readonly _excelExport: ExcelExportService,
 
-  ) {}
-EXCEL_MIME_TYPE='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+  ) { }
+  EXCEL_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
   // @Public()
   // @Get()
@@ -46,34 +47,48 @@ EXCEL_MIME_TYPE='application/vnd.openxmlformats-officedocument.spreadsheetml.she
   //   return this.appService.getHello();
   // }
 
+  // @Public()
+  // @Get('export')
+  // async exportExcel(
+  //   @Query() input: queryDto,
+  //   @Res() res: Response,
+  // ): Promise<void> {
+  //   try {
+  //     const { tempFilePath, excelName } = await this.appService.getHello(input);
+  //     console.log(tempFilePath); 
+
+  //     const readStream = createReadStream(tempFilePath);
+  //     res.setHeader('Content-Type', this.EXCEL_MIME_TYPE);
+  //     const encodedFilename = encodeURIComponent(excelName + '.xlsx');
+  //     res.setHeader(
+  //       'Content-Disposition',
+  //       `attachment; filename*=UTF-8''${encodedFilename}`,
+  //     );
+  //     readStream.pipe(res);
+  //     readStream.on('error', (err) => {
+  //       this._excelExport.cleanUpFile(tempFilePath);
+  //       throw err;
+  //     });
+  //     readStream.on('end', () => {
+  //       this._excelExport.cleanUpFile(tempFilePath);
+  //     });
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
+
   @Public()
-  @Get('export')
-  async exportExcel(
-    @Query() input: queryDto,
-    @Res() res: Response,
-  ): Promise<void> {
-    try {
-      const { tempFilePath, excelName } = await this.appService.getHello(input);
-      console.log(tempFilePath); 
-      
-      const readStream = createReadStream(tempFilePath);
-      res.setHeader('Content-Type', this.EXCEL_MIME_TYPE);
-      const encodedFilename = encodeURIComponent(excelName + '.xlsx');
-      res.setHeader(
-        'Content-Disposition',
-        `attachment; filename*=UTF-8''${encodedFilename}`,
-      );
-      readStream.pipe(res);
-      readStream.on('error', (err) => {
-        this._excelExport.cleanUpFile(tempFilePath);
-        throw err;
-      });
-      readStream.on('end', () => {
-        this._excelExport.cleanUpFile(tempFilePath);
-      });
-    } catch (error) {
-      throw error;
-    }
+  @Post('queue')
+  async testQueue(@Body() input: any) {
+    const { username, password } = input
+    return await this.appService.testQueue(username, password)
+  }
+
+  @Public()
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() body: any) {
+    return await this.appService.uploadFile(body, file)
   }
 
 }

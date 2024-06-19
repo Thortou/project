@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Query, Request, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Query, Request, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { UserEntity } from "../entities/user.entity";
 import { UserGenerateCommand } from "./commands/command/user-auth/user-generate.command";
@@ -21,7 +21,10 @@ import { GetPaginatedUserQuery } from "./queries/queries/get-paginated-user.quer
 import {
     ApiBearerAuth,
     ApiBody,
+    ApiConsumes,
+    ApiOperation,
 } from '@nestjs/swagger';
+import { FileInterceptor } from "@nestjs/platform-express";
 
 @ApiBearerAuth()
 @Controller('users')
@@ -48,8 +51,11 @@ export class UserController {
     }
 
     @Post('create')
-    async create(@Body() input: CreateUserDto) {
-        const data = await this._commandBus.execute<CreateUserCommand, UserEntity>(new CreateUserCommand(input));
+    @ApiConsumes('multipart/form-data', 'application/json')
+    @ApiOperation({ summary: 'Upload a file' })
+    @UseInterceptors(FileInterceptor('file'))
+    async create(@Body() input: CreateUserDto, @UploadedFile() file: Express.Multer.File,) {
+        const data = await this._commandBus.execute<CreateUserCommand, UserEntity>(new CreateUserCommand(input, file));
         return data
     }
 

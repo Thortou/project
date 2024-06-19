@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 import { IsArray, IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from "class-validator";
 
 export class CreateUserDto {
@@ -40,16 +41,10 @@ export class CreateUserDto {
   @MaxLength(200, { message: 'position: ບໍ່ສາມາດປ້ອນຕົວອັກສອນຫຼາຍກວ່າ 200 ຕົວ' })
   position: string;
 
-  @ApiProperty({ required: false })
-  @IsString({ message: 'photo_key: ຕ້ອງເປັນ string ເທົ່ານັ້ນ' })
-  photo_key: string;
+  @ApiProperty({ required: false, type: 'string', format: 'binary' })
+  file: string;
 
   @ApiProperty({ required: false })
-  @IsArray({ message: 'role_ids: ຕ້ອງເປັນ array' })
-  @IsNumber(
-    {},
-    { each: true, message: 'ຕ້ອງເປັນຕົວເລກ' },
-  )
-  role_ids: number[];
+  role_ids: string;
 
 }
