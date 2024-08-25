@@ -43,6 +43,7 @@ export class UserService {
           .getRepository(UserEntity)
           .createQueryBuilder('users')
           .leftJoinAndSelect('users.roles', 'roles')
+          .leftJoinAndSelect('users.profile', 'profiles')
           .leftJoinAndSelect('roles.permissions', 'permissions')
     
     

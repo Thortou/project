@@ -43,7 +43,8 @@ export class RoleController {
     async getDetail(@Param('id') id: number): Promise<any> {
         return await this._queryBus.execute<GetDetailRoleQuery, RoleEntity>(new GetDetailRoleQuery(id))
     }
-    @Permissions(PermissionName.READ_ROLE)
+    // @Permissions(PermissionName.READ_ROLE)
+    @Public()
     @Get()
     async getPaginated(@Query() query: QueryRoleDto): Promise<any> {
         return await this._queryBus.execute<GetPaginateRoleQuery, RoleEntity>(new GetPaginateRoleQuery(query))

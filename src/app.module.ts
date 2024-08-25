@@ -14,10 +14,17 @@ import { UserService } from './modules/users/users/user.service';
 import { userModules } from './modules/users';
 import { QueueModule } from './infrastructure/adapters/queue/bull/queue.module';
 import { FileUploadModule } from './infrastructure/adapters/file-upload/file-upload.module';
+import { CacheManagerModule } from './infrastructure/adapters/cache/redis/cache.module';
+import { LoggerModule } from './infrastructure/adapters/logger/winston/logger.module';
+import { LearnModule } from './modules/learn-validation/learn-validation.module';
+import { OrderModule } from './modules/orders/order.module';
+import { ProductModule } from './modules/spatie-tennancy/products/product.module';
 
 @Module({
   imports: [
     TypeOrmRepositoryModule,
+    CacheManagerModule,
+    LoggerModule.forRootAsync(),
     CqrsModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -29,10 +36,13 @@ import { FileUploadModule } from './infrastructure/adapters/file-upload/file-upl
       useFactory: jwtConfig,
       inject: [ConfigService],
     }),
+    LearnModule,
     QueueModule,
     FileUploadModule,
-    ...userModules
-  ], 
+    ...userModules,
+    // OrderModule,
+    ProductModule
+  ],
   controllers: [AppController],
   providers: [
     UserService,

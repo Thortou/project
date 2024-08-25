@@ -8,23 +8,19 @@ import * as admin from 'firebase-admin';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import  cors from 'cors';
+// import { TenantMiddleware } from './common/middleware/tennant-spatie.middleware';
 
-async function bootstrap() {
+async function bootstrap() { 
   dotenv.config();
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  const corsOptions = {
-    origin: 'http://localhost:5173',  // Replace with your frontend's origin
-    credentials: true,               // Access-Control-Allow-Credentials
-    optionsSuccessStatus: 200        // Some legacy browsers choke on 204
-  };
-
-  app.use(cors(corsOptions));  // Apply the CORS middleware with options
-
+  app.enableCors({ origin: '*' })
   app.useGlobalPipes(new ValidationPipe());
+  // app.use(new TenantMiddleware().use);
 
   const config = app.get(ConfigService<IEnv>);
-
+  
+  app.setGlobalPrefix('api')
   const documentConfig = new DocumentBuilder()
     .setTitle('UI NestJs Tutorial 2024')
     .setDescription('This NestJs Tutorial API for Connect')
@@ -52,7 +48,6 @@ async function bootstrap() {
   // admin.initializeApp({
   //   credential: admin.credential.cert(serviceAccount)
   // });
-
   await app.listen(config.get('SERVER_PORT'));
 }
 

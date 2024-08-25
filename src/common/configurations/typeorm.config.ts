@@ -14,7 +14,7 @@ export const typeOrmOption = (): TypeOrmModuleAsyncOptions => ({
         database: config.get('DATABASE_NAME'),
         password: config.get('DATABASE_PASSWORD'),
         entities: models,
-        synchronize: true,
+        synchronize: false,
         logging: false
     }),
     inject: [ConfigService]

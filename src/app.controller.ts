@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Query, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ExcelExportService } from './common/utils/excel-export/export.service';
 import { table } from './modules/excel/repository';
@@ -6,16 +6,25 @@ import { Public } from './common/decorators/public.decorator';
 import { createReadStream } from 'fs';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UserService } from './modules/users/users/user.service';
+import { CACHE_SERVICE } from './infrastructure/adapters/cache/inject-key';
+import { ICache } from './infrastructure/ports/cache/cache.interface';
+import { secondsToMilliseconds } from './common/utils/covert-time';
+import { LOGGER_SERVICE } from './infrastructure/adapters/logger/inject-keys';
+import { ILogger } from './infrastructure/ports/logger/logger.interface';
 
 export class queryDto {
-  search: string;
-  lname: string
+  username: string;
+  amountSent?: number;
 }
 @Controller()
 export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly _excelExport: ExcelExportService,
+    private readonly userService: UserService,
+    @Inject(CACHE_SERVICE) private iCache: ICache<queryDto>,
+    @Inject(LOGGER_SERVICE) private readonly logger: ILogger,
 
   ) { }
   EXCEL_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
@@ -77,18 +86,103 @@ export class AppController {
   //   }
   // }
 
+  // @Public()
+  // @Post('queue')
+  // async testQueue(@Body() input: any) {
+  //   const { username, password } = input
+  //   return await this.appService.testQueue(username, password)
+  // }
+
+  // @Public()
+  // @Post('upload')
+  // @UseInterceptors(FileInterceptor('file'))
+  // async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() body: any) {
+  //   return await this.appService.uploadFile(body, file)
+  // }
+
+
+  // @Public()
+  // @Get('log/:id')
+  // async logData(@Param('id') id: number) {
+  //    const user = await this.userService.getOne(1, 'id')
+  //    console.log(user.roles[0].permissions[0].name);
+
+  // }
   @Public()
-  @Post('queue')
-  async testQueue(@Body() input: any) {
-    const { username, password } = input
-    return await this.appService.testQueue(username, password)
+  @Post('cache')
+  async logData(@Body() body: any) {
+    const { username, password } = body
+    if (username !== 'admin') {
+      console.log('not found username');
+    }
+    else if (password !== "1234") {
+      await this.lockPhone(username);
+      // this.logger.error(
+      //   `[Password Error]`,
+      //   password,
+      // );
+    } else if (password) {
+      await this.iCache.delete(username)
+      console.log('logined...');
+    }
+    // await this.iCache.set(`set ${username}`, { username }, secondsToMilliseconds(400))
+    // await this.lockPhone(username);
+    // await this.lockSend(username);
+  }
+  private async lockSend(username: string) {
+    const lockPayload = await this.iCache.get(`LOCK_${username}`);
+
+    if (lockPayload) {
+      if (lockPayload.amountSent >= 6) {
+        console.log('CAN_NOT_SENT_OTP_IN_HOURS');
+
+      }
+    }
+
+    const payload = await this.iCache.get(`LOCK_SEND_${username}`);
+
+    if (payload) {
+      console.log('CAN_NOT_SENT_OTP_IN_30_SEC');
+    }
+
+    await this.iCache.set(
+      `LOCK_SEND_${username}`,
+      { username },
+      secondsToMilliseconds(30),
+    );
   }
 
-  @Public()
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() body: any) {
-    return await this.appService.uploadFile(body, file)
+  private async lockPhone(username: string) {
+    const payload = await this.iCache.get(`LOCK_${username}`);
+    // console.log(payload);
+
+    if (payload) {
+      if (payload.amountSent >= 6) {
+        // return {message: 'CAN_NOT_SENT_OTP_IN_HOURS'}
+        console.log('CAN_NOT_SENT_OTP_IN_HOURS');
+
+      }
+
+      await this.iCache.set(
+        `LOCK_${username}`,
+        {
+          username,
+          amountSent: payload.amountSent + 1,
+        },
+        secondsToMilliseconds(30),
+      );
+
+      return "ok";
+    }
+
+    await this.iCache.set(
+      `LOCK_${username}`,
+      {
+        username,
+        amountSent: 1,
+      },
+      // secondsToMilliseconds(30),
+    );
   }
 
 }

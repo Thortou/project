@@ -7,6 +7,7 @@ import { queryUser } from "./queries/handlers";
 import { UniqueIDService } from "src/common/utils/generate-unique-id";
 
 @Module({
+    
     controllers: [UserController],
     providers: [
         ...userHandlers,

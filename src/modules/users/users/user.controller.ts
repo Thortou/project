@@ -19,14 +19,14 @@ import { DeleteUserCommand } from "./commands/command/users/delete-user.command"
 import { QueryUserDto } from "./dtos/users/query-user.dto";
 import { GetPaginatedUserQuery } from "./queries/queries/get-paginated-user.query";
 import {
-    ApiBearerAuth,
+    ApiBearerAuth, 
     ApiBody,
     ApiConsumes,
     ApiOperation,
 } from '@nestjs/swagger';
 import { FileInterceptor } from "@nestjs/platform-express";
 
-@ApiBearerAuth()
+// @ApiBearerAuth()
 @Controller('users')
 export class UserController {
     constructor(
@@ -50,6 +50,7 @@ export class UserController {
         }
     }
 
+    @Public()
     @Post('create')
     @ApiConsumes('multipart/form-data', 'application/json')
     @ApiOperation({ summary: 'Upload a file' })
@@ -58,7 +59,7 @@ export class UserController {
         const data = await this._commandBus.execute<CreateUserCommand, UserEntity>(new CreateUserCommand(input, file));
         return data
     }
-
+    @Public()
     @Permissions(PermissionName.UPDATE_USER)
     @Put('verify/:id')
     async verify(@Param('id') id: number) {
@@ -72,20 +73,21 @@ export class UserController {
     async update(@Param('id') id: number, @Body() input: UpdateUserDto): Promise<UserEntity> {
         return await this._commandBus.execute<UpdateUserCommand, UserEntity>(new UpdateUserCommand(id, input))
     }
-
-    @Permissions(PermissionName.READ_USER)
+    @Public()
+    // @Permissions(PermissionName.READ_USER)
     @Get()
     async getPaginated(@Query() queryUserDto: QueryUserDto): Promise<UserEntity> {
         return await this._queryBus.execute<GetPaginatedUserQuery, UserEntity>(new GetPaginatedUserQuery(queryUserDto))
     }
-    @Permissions(PermissionName.READ_USER)
+    @Public()
+    // @Permissions(PermissionName.READ_USER)
     @Get(':id')
     async findOne(@Param('id') id: number): Promise<UserEntity> {
         return await this._queryBus.execute<GetDetailUserQuery, UserEntity>(new GetDetailUserQuery(id))
     }
 
     //change password user
-    // @Public()
+    @Public()
     @Permissions(PermissionName.UPDATE_USER)
     @Post('change-password')
     @UseGuards(VerifyOTPOnFirebaseMiddleware)
@@ -94,7 +96,7 @@ export class UserController {
         const result = await this._commandBus.execute<ChangePasswordUserCommand>(new ChangePasswordUserCommand(user, body))
         return result
     }
-
+    @Public()
     @Permissions(PermissionName.UPDATE_USER)
     @Delete('delete/:id')
     async delete(@Param('id') id: number): Promise<UserEntity> {
